@@ -32,7 +32,16 @@ public class OneCardManager : MonoBehaviour
         }
     }
 
-    public bool CanBePlayedNow = false;
+    public bool _CanBePlayedNow = false;
+    public bool CanBePlayedNow
+    {
+        get { return _CanBePlayedNow; }
+        set
+        {
+            _CanBePlayedNow = value;
+            CardFaceGlowImage.enabled = value;
+        }
+    }
 
     public void ReadCardFromAsset()
     {

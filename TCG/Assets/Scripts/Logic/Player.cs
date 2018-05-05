@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Player : MonoBehaviour, ICharacter
@@ -240,14 +241,21 @@ public class Player : MonoBehaviour, ICharacter
         {
             GameObject g = IDHolder.GetGameObjectWithID(cl.UniqueCardID);
             if (g!=null)
+            {
                 g.GetComponent<OneCardManager>().CanBePlayedNow = (cl.CurrentManaCost <= ManaLeft) && !removeAllHighlights;
+            }
+                
         }
 
         foreach (CreatureLogic crl in table.CreaturesOnTable)
         {
             GameObject g = IDHolder.GetGameObjectWithID(crl.UniqueCreatureID);
             if(g!= null)
+            {
                 g.GetComponent<OneCreatureManager>().CanAttackNow = (crl.AttacksLeftThisTurn > 0) && !removeAllHighlights;
+                //Debug.Log("creature attack possible" + g.GetComponent<OneCreatureManager>().CanAttackNow);
+            }
+                
         }
             
         // highlight hero power
