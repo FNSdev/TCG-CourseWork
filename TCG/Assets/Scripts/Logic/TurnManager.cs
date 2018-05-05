@@ -64,36 +64,31 @@ public class TurnManager : MonoBehaviour {
             p.LoadCharacterInfoFromAsset();
             p.TransmitInfoAboutPlayerToVisual();
             p.PArea.PDeck.CardsInDeck = p.deck.cards.Count;
-            // move both portraits to the center
-            p.PArea.Portrait.transform.position = p.PArea.handVisual.OtherCardDrawSourceTransform.position;
+            p.PArea.Portrait.transform.position = p.StartingPosition.position;
         }
 
+        Sequence punch = DOTween.Sequence();
+        punch.Append(Player.Players[0].PArea.Portrait.transform.DOMove(new Vector3(0f, 1f, -4.5f), 1.5f).SetEase(Ease.InBounce).SetDelay(1f));
+        punch.Insert(0f, Player.Players[1].PArea.Portrait.transform.DOMove(new Vector3(0f, -1f, -4.5f), 1.5f).SetEase(Ease.InBounce).SetDelay(1f));
+        punch.Append(Player.Players[0].PArea.Portrait.transform.DOShakePosition(1.5f, 1.5f, 7, 60, false, true));
+        punch.Insert(2.5f, Player.Players[1].PArea.Portrait.transform.DOShakePosition(1.5f, 1.5f, 7, 60, false, true));
+        
         Sequence s = DOTween.Sequence();
         s.Append(Player.Players[0].PArea.Portrait.transform.DOMove(Player.Players[0].PArea.PortraitPosition.position, 1f).SetEase(Ease.InQuad));
         s.Insert(0f, Player.Players[1].PArea.Portrait.transform.DOMove(Player.Players[1].PArea.PortraitPosition.position, 1f).SetEase(Ease.InQuad));
-        s.PrependInterval(3f);
+        s.PrependInterval(4f);
         s.OnComplete(() =>
             {
-                // determine who starts the game.
-                int rnd = Random.Range(0,2);  // 2 is exclusive boundary
-                // Debug.Log(Player.Players.Length);
+                int rnd = Random.Range(0,2);  
                 Player whoGoesFirst = Player.Players[rnd];
-                // Debug.Log(whoGoesFirst);
                 Player whoGoesSecond = whoGoesFirst.otherPlayer;
-                // Debug.Log(whoGoesSecond);
-         
-                // draw 4 cards for first player and 5 for second player
                 int initDraw = 4;
                 for (int i = 0; i < initDraw; i++)
                 {            
-                    // second player draws a card
                     whoGoesSecond.DrawACard(true);
-                    // first player draws a card
                     whoGoesFirst.DrawACard(true);
                 }
-                // add one more card to second player`s hand
                 whoGoesSecond.DrawACard(true);
-                //new GivePlayerACoinCommand(null, whoGoesSecond).AddToQueue();
                 whoGoesSecond.DrawACoin();
                 new StartATurnCommand(whoGoesFirst).AddToQueue();
             });

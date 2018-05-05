@@ -13,6 +13,8 @@ public class Player : MonoBehaviour, ICharacter
     public Hand hand;
     public Table table;
 
+    public Transform StartingPosition;
+
     private int bonusManaThisTurn = 0;
     public bool usedHeroPowerThisTurn = false;
 
