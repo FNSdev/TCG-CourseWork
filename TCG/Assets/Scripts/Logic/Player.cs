@@ -220,6 +220,8 @@ public class Player : MonoBehaviour, ICharacter
         table.CreaturesOnTable.Insert(tablePos, newCreature);
         // no matter what happens, move this card to PlayACardSpot
         new PlayACreatureCommand(playedCard, this, tablePos, newCreature.UniqueCreatureID).AddToQueue();
+        if (newCreature.effect != null)
+            newCreature.effect.Battlecry();
         // remove this card from hand
         hand.CardsInHand.Remove(playedCard);
         HighlightPlayableCards();
@@ -261,7 +263,7 @@ public class Player : MonoBehaviour, ICharacter
         }
             
         // highlight hero power
-        PArea.HeroPower.Highlighted = (!usedHeroPowerThisTurn) && (ManaLeft > 1) && !removeAllHighlights;
+        PArea.HeroPower.Highlighted = (!usedHeroPowerThisTurn) && (ManaLeft > 2) && !removeAllHighlights;
     }
 
     // START GAME METHODS

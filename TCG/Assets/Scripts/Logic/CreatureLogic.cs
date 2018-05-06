@@ -96,7 +96,8 @@ public class CreatureLogic: ICharacter
     public void Die()
     {   
         owner.table.CreaturesOnTable.Remove(this);
-
+        if (effect != null)
+            effect.Deathrattle();
         new CreatureDieCommand(UniqueCreatureID, owner).AddToQueue();
     }
 
