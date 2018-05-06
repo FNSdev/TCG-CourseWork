@@ -21,6 +21,6 @@ MonoBehaviour:
   Charge: 0
   CreatureScriptName: 
   specialCreatureAmount: 0
-  SpellScriptName: 
-  specialSpellAmount: 0
+  SpellScriptName: GiveManaBonus
+  specialSpellAmount: 1
   Targets: 0

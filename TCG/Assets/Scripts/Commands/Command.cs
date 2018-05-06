@@ -24,6 +24,7 @@ public class Command
 
     public static void CommandExecutionComplete()
     {
+        CommandQueue.Dequeue();
         if (CommandQueue.Count > 0)
             PlayFirstCommandFromQueue();
         else
@@ -35,7 +36,7 @@ public class Command
     public static void PlayFirstCommandFromQueue()
     {
         playingQueue = true;
-        CommandQueue.Dequeue().StartCommandExecution();
+        CommandQueue.Peek().StartCommandExecution();
     }
 
     public static bool CardDrawPending()
@@ -43,7 +44,11 @@ public class Command
         foreach (Command c in CommandQueue)
         {
             if (c is DrawACardCommand)
+            {
+                Debug.Log("Drags not allowed!");
                 return true;
+            }
+                
         }
         return false;
     }
