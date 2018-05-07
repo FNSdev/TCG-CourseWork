@@ -89,6 +89,12 @@ public class TableVisual : MonoBehaviour
         ShiftSlotsGameObjectAccordingToNumberOfCreatures();
         PlaceCreaturesOnNewSlots();
 
+        //TEST
+
+        DraggableBattlecry DB = creature.gameObject.GetComponentInChildren<DraggableBattlecry>();
+        if (DB != null)
+            DB.ActivateDragging();
+
         // заканчиваем выполнение комманды
         Command.CommandExecutionComplete();
     }

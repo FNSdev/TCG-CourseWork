@@ -220,8 +220,6 @@ public class Player : MonoBehaviour, ICharacter
         table.CreaturesOnTable.Insert(tablePos, newCreature);
         // no matter what happens, move this card to PlayACardSpot
         new PlayACreatureCommand(playedCard, this, tablePos, newCreature.UniqueCreatureID).AddToQueue();
-        if (newCreature.effect != null)
-            newCreature.effect.Battlecry();
         // remove this card from hand
         hand.CardsInHand.Remove(playedCard);
         HighlightPlayableCards();

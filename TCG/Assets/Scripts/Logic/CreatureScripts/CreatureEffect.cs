@@ -18,7 +18,7 @@ public abstract class CreatureEffect
 
     public virtual void CauseEffect() { }
 
-    public virtual void Battlecry() { }
+    public virtual void Battlecry(ICharacter Target = null) { }
 
     public virtual void Deathrattle() { }
 

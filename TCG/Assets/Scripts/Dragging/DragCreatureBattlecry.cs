@@ -1,8 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
-using DG.Tweening;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class DragSpellOnTarget : DraggingActions {
+public class DragCreatureBattlecry : DraggingActions
+{
 
     public TargetingOptions Targets;
     private SpriteRenderer sr;
@@ -12,7 +13,7 @@ public class DragSpellOnTarget : DraggingActions {
     private Transform triangle;
     private SpriteRenderer triangleSR;
     private GameObject Target;
-    private OneCardManager Manager;
+    private OneCreatureManager Manager;
 
     void Awake()
     {
@@ -21,18 +22,14 @@ public class DragSpellOnTarget : DraggingActions {
         lr.sortingLayerName = "AboveEverything";
         triangle = transform.Find("Triangle");
         triangleSR = triangle.GetComponent<SpriteRenderer>();
-        Manager = GetComponentInParent<OneCardManager>();
+        Manager = GetComponentInParent<OneCreatureManager>();
         whereIsThisCard = GetComponentInParent<WhereIsTheCardOrCreature>();
-
-        Targets = Manager.cardAsset.Targets; 
+        Targets = Manager.cardAsset.Targets;
     }
 
-    public override bool CanDrag
+    protected override bool DragSuccessful()
     {
-        get
-        {
-            return base.CanDrag && Manager.CanBePlayedNow;
-        }
+        return true;
     }
 
     public override void OnStartDrag()
@@ -41,6 +38,13 @@ public class DragSpellOnTarget : DraggingActions {
         whereIsThisCard.VisualState = VisualStates.Dragging;
         sr.enabled = true;
         lr.enabled = true;
+        
+        float z = -Camera.main.transform.position.z + transform.position.z;
+        var screenMousePos = Input.mousePosition;
+        screenMousePos.z = z;
+
+        transform.position = Camera.main.ScreenToWorldPoint(screenMousePos); 
+
     }
 
     public override void OnDraggingInUpdate()
@@ -48,16 +52,16 @@ public class DragSpellOnTarget : DraggingActions {
         // This code only draws the arrow
         Vector3 notNormalized = transform.position - transform.parent.position;
         Vector3 direction = notNormalized.normalized;
-        float distanceToTarget = (direction*2.3f).magnitude;
+        float distanceToTarget = (direction * 2.3f).magnitude;
         if (notNormalized.magnitude > distanceToTarget)
         {
             // draw a line between the creature and the target
-            lr.SetPositions(new Vector3[]{ transform.parent.position, transform.position - direction*2.3f });
+            lr.SetPositions(new Vector3[] { transform.parent.position, transform.position - direction * 2.3f });
             lr.enabled = true;
 
             // position the end of the arrow between near the target.
             triangleSR.enabled = true;
-            triangleSR.transform.position = transform.position - 1.5f*direction;
+            triangleSR.transform.position = transform.position - 1.5f * direction;
 
             // proper rotarion of arrow end
             float rot_z = Mathf.Atan2(notNormalized.y, notNormalized.x) * Mathf.Rad2Deg;
@@ -69,7 +73,6 @@ public class DragSpellOnTarget : DraggingActions {
             lr.enabled = false;
             triangleSR.enabled = false;
         }
-
     }
 
     public override void OnEndDrag()
@@ -77,9 +80,9 @@ public class DragSpellOnTarget : DraggingActions {
         Target = null;
         RaycastHit[] hits;
         // TODO: raycast here anyway, store the results in 
-        hits = Physics.RaycastAll(origin: Camera.main.transform.position, 
-            direction: (-Camera.main.transform.position + this.transform.position).normalized, 
-            maxDistance: 30f) ;
+        hits = Physics.RaycastAll(origin: Camera.main.transform.position,
+            direction: (-Camera.main.transform.position + this.transform.position).normalized,
+            maxDistance: 30f);
 
         foreach (RaycastHit h in hits)
         {
@@ -87,39 +90,41 @@ public class DragSpellOnTarget : DraggingActions {
             {
                 // selected a Player
                 Target = h.transform.gameObject;
+                break; //??????????????????????????????????????????????????????????
             }
             else if (h.transform.tag.Contains("Creature"))
             {
                 // hit a creature, save parent transform
                 Target = h.transform.parent.gameObject;
+                break; // НЕ ПОНИМАЮ, ПОЧЕМУ БЕЗ ЭТОГО НЕ РАБОТАЕТ, ВЕДЬ ДЛЯ АТАКИ СУЩЕСТВ БЕЗ ЭТОГО ВСЕ НОРМ
             }
         }
 
         bool targetValid = false;
 
+        CreatureLogic cl = CreatureLogic.CreaturesCreatedThisGame[GetComponentInParent<IDHolder>().UniqueID];
+        int targetID = Target.GetComponent<IDHolder>().UniqueID;
+        Debug.Log("BTARGET ID: " + targetID);
+
         if (Target != null)
         {
             // determine an owner of this card
-            Player owner = null; 
+            Player owner = null;
             if (tag.Contains("Low"))
                 owner = GlobalSettings.Instance.LowPlayer;
             else
                 owner = GlobalSettings.Instance.TopPlayer;
-
+                       
             // check of we should play this spell depending on targeting options
-            int targetID = Target.GetComponent<IDHolder>().UniqueID;
+            
             switch (Targets)
             {
-                 case TargetingOptions.AllCharacters: 
-                    owner.PlayASpellFromHand(GetComponentInParent<IDHolder>().UniqueID, targetID);
+                case TargetingOptions.AllCharacters:
                     targetValid = true;
                     break;
                 case TargetingOptions.AllCreatures:
                     if (Target.tag.Contains("Creature"))
-                    {
-                        owner.PlayASpellFromHand(GetComponentInParent<IDHolder>().UniqueID, targetID);
                         targetValid = true;
-                    }
                     break;
                 case TargetingOptions.EnemyCharacters:
                     if (Target.tag.Contains("Creature") || Target.tag.Contains("Player"))
@@ -128,7 +133,6 @@ public class DragSpellOnTarget : DraggingActions {
                         if ((tag.Contains("Low") && Target.tag.Contains("Top"))
                            || (tag.Contains("Top") && Target.tag.Contains("Low")))
                         {
-                            owner.PlayASpellFromHand(GetComponentInParent<IDHolder>().UniqueID, targetID);
                             targetValid = true;
                         }
                     }
@@ -140,7 +144,6 @@ public class DragSpellOnTarget : DraggingActions {
                         if ((tag.Contains("Low") && Target.tag.Contains("Top"))
                             || (tag.Contains("Top") && Target.tag.Contains("Low")))
                         {
-                            owner.PlayASpellFromHand(GetComponentInParent<IDHolder>().UniqueID, targetID);
                             targetValid = true;
                         }
                     }
@@ -152,7 +155,6 @@ public class DragSpellOnTarget : DraggingActions {
                         if ((tag.Contains("Low") && Target.tag.Contains("Low"))
                             || (tag.Contains("Top") && Target.tag.Contains("Top")))
                         {
-                            owner.PlayASpellFromHand(GetComponentInParent<IDHolder>().UniqueID, targetID);
                             targetValid = true;
                         }
                     }
@@ -164,7 +166,6 @@ public class DragSpellOnTarget : DraggingActions {
                         if ((tag.Contains("Low") && Target.tag.Contains("Low"))
                             || (tag.Contains("Top") && Target.tag.Contains("Top")))
                         {
-                            owner.PlayASpellFromHand(GetComponentInParent<IDHolder>().UniqueID, targetID);
                             targetValid = true;
                         }
                     }
@@ -175,25 +176,22 @@ public class DragSpellOnTarget : DraggingActions {
             }
         }
 
-        if (!targetValid)
+        transform.localPosition = new Vector3(0f, 0f, 0.4f);
+        
+        if(targetValid)
         {
-            // not a valid target, return
-            whereIsThisCard.VisualState = tempVisualState;
-            whereIsThisCard.SetHandSortingOrder();
+            cl.TriggerBattlecry(targetID);
+            GetComponent<DraggableBattlecry>().dragging = false;
+            sr.enabled = false;
+            lr.enabled = false;
+            triangleSR.enabled = false;
+        }
+        else
+        {
+
         }
 
-        // return target and arrow to original position
-        // this position is special for spell cards to show the arrow on top
-        transform.localPosition = new Vector3(0f, 0f, 0.4f);
-        sr.enabled = false;
-        lr.enabled = false;
-        triangleSR.enabled = false;
-
-    }
-
-    // NOT USED IN THIS SCRIPT
-    protected override bool DragSuccessful()
-    {
-        return true;
-    }
+       /* transform.localPosition = new Vector3(0f, 0f, 0.4f);*/
+  }
+    
 }

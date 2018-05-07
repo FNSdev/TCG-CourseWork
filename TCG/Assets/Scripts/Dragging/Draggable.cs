@@ -23,7 +23,7 @@ public class Draggable : MonoBehaviour {
 
     // reference to DraggingActions script. Dragging Actions should be attached to the same GameObject.
     private DraggingActions da;
-
+    
     // STATIC property that returns the instance of Draggable that is currently being dragged
     private static Draggable _draggingThis;
     public static Draggable DraggingThis
@@ -74,6 +74,7 @@ public class Draggable : MonoBehaviour {
             da.OnEndDrag();
         }
     }   
+
 
     // returns mouse position in World coordinates for our GameObject to follow. 
     private Vector3 MouseInWorldCoords()

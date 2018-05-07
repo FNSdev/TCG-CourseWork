@@ -14,13 +14,13 @@ MonoBehaviour:
   characterAsset: {fileID: 0}
   Description: Deal 8 damage to a target character
   CardImage: {fileID: 21300000, guid: c4afaf25d95f49f418a97a6418a159a8, type: 3}
-  ManaCost: 5
+  ManaCost: 1
   MaxHealth: 0
   Attack: 0
-  AttacskForOneTurn: 1
+  AttacksForOneTurn: 1
   Charge: 0
   CreatureScriptName: 
   specialCreatureAmount: 0
   SpellScriptName: 
   specialSpellAmount: 8
-  Targets: 4
+  Targets: 2

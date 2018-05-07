@@ -127,6 +127,26 @@ public class CreatureLogic: ICharacter
         AttackCreature(target);
     }
 
+    public void TriggerBattlecry(int id)
+    {
+        if (id < 0)
+            TriggerBattlecry();
+        else if (id == owner.ID)
+            TriggerBattlecry(owner);
+        else if (id == owner.otherPlayer.ID)
+            TriggerBattlecry(owner.otherPlayer.ID);
+        else
+            TriggerBattlecry(CreaturesCreatedThisGame[id]);
+    }
+
+    public void TriggerBattlecry(ICharacter Target = null)
+    {
+        if(effect != null)
+        {
+            effect.Battlecry(Target);
+        }
+    }
+
     // STATIC For managing IDs
     public static Dictionary<int, CreatureLogic> CreaturesCreatedThisGame = new Dictionary<int, CreatureLogic>();
 
