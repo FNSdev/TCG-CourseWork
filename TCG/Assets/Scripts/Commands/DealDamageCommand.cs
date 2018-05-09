@@ -29,6 +29,8 @@ public class DealDamageCommand : Command {
             // target is a creature
             target.GetComponent<OneCreatureManager>().TakeDamage(amount, healthAfter);
         }
+
+        new DelayCommand(1.3f).AddToQueue();
         CommandExecutionComplete();
     }
 }

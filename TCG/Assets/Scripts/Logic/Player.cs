@@ -123,6 +123,11 @@ public class Player : MonoBehaviour, ICharacter
         ManaThisTurn -= bonusManaThisTurn;
         bonusManaThisTurn = 0;
         GetComponent<TurnMaker>().StopAllCoroutines();
+        TableVisual TVistual = PArea.tableVisual.GetComponent<TableVisual>();
+        foreach(GameObject creature in TVistual.CreaturesOnTable)
+        {
+            creature.GetComponentInChildren<DragCreatureBattlecry>().TurnTargetingOff();
+        }
     }
 
     public void DrawACard(bool fast = false)

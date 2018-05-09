@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class DragCreatureBattlecry : DraggingActions
 {
-
-    public TargetingOptions Targets;
+    public GameObject Creature;
+    private TargetingOptions Targets;
+   
     private SpriteRenderer sr;
     private LineRenderer lr;
     private WhereIsTheCardOrCreature whereIsThisCard;
@@ -43,79 +44,92 @@ public class DragCreatureBattlecry : DraggingActions
         var screenMousePos = Input.mousePosition;
         screenMousePos.z = z;
 
-        transform.position = Camera.main.ScreenToWorldPoint(screenMousePos); 
+        transform.position = Camera.main.ScreenToWorldPoint(screenMousePos);
 
+        InfoManager.Instance.ShowTip("Press <ESC> to cancel battlecry");
     }
 
     public override void OnDraggingInUpdate()
     {
-        // This code only draws the arrow
         Vector3 notNormalized = transform.position - transform.parent.position;
         Vector3 direction = notNormalized.normalized;
         float distanceToTarget = (direction * 2.3f).magnitude;
         if (notNormalized.magnitude > distanceToTarget)
         {
-            // draw a line between the creature and the target
             lr.SetPositions(new Vector3[] { transform.parent.position, transform.position - direction * 2.3f });
             lr.enabled = true;
 
-            // position the end of the arrow between near the target.
             triangleSR.enabled = true;
             triangleSR.transform.position = transform.position - 1.5f * direction;
 
-            // proper rotarion of arrow end
             float rot_z = Mathf.Atan2(notNormalized.y, notNormalized.x) * Mathf.Rad2Deg;
             triangleSR.transform.rotation = Quaternion.Euler(0f, 0f, rot_z - 90);
         }
         else
         {
-            // if the target is not far enough from creature, do not show the arrow
             lr.enabled = false;
             triangleSR.enabled = false;
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            TurnTargetingOff();
+    }
+
+    public void TurnTargetingOff()
+    {
+        GetComponent<DraggableBattlecry>().dragging = false;
+        sr.enabled = false;
+        lr.enabled = false;
+        triangleSR.enabled = false;
+        transform.localPosition = new Vector3(0f, 0f, -0.1f);
+        whereIsThisCard.VisualState = tempVisualState;
+        InfoManager.Instance.HideTip();
     }
 
     public override void OnEndDrag()
     {
         Target = null;
         RaycastHit[] hits;
-        // TODO: raycast here anyway, store the results in 
         hits = Physics.RaycastAll(origin: Camera.main.transform.position,
             direction: (-Camera.main.transform.position + this.transform.position).normalized,
             maxDistance: 30f);
+
+        bool targetValid = false;
 
         foreach (RaycastHit h in hits)
         {
             if (h.transform.tag.Contains("Player"))
             {
-                // selected a Player
                 Target = h.transform.gameObject;
-                break; //??????????????????????????????????????????????????????????
             }
             else if (h.transform.tag.Contains("Creature"))
             {
-                // hit a creature, save parent transform
-                Target = h.transform.parent.gameObject;
-                break; // НЕ ПОНИМАЮ, ПОЧЕМУ БЕЗ ЭТОГО НЕ РАБОТАЕТ, ВЕДЬ ДЛЯ АТАКИ СУЩЕСТВ БЕЗ ЭТОГО ВСЕ НОРМ
+                if(h.transform.gameObject == this.gameObject)
+                {
+                    RaycastHit[] raycasts = Physics.RaycastAll(origin: Camera.main.transform.position,
+                        direction: (-Camera.main.transform.position + Creature.transform.position).normalized,
+                        maxDistance: 30f);
+                    foreach(RaycastHit hit in raycasts)
+                    {
+                        if (hit.transform.tag.Contains("Creature"))
+                            Target = h.transform.parent.gameObject;
+                    }
+
+                }
+                else
+                {
+                    Target = h.transform.parent.gameObject;
+                }
+
             }
+            
         }
-
-        bool targetValid = false;
-
-        CreatureLogic cl = CreatureLogic.CreaturesCreatedThisGame[GetComponentInParent<IDHolder>().UniqueID];
-        int targetID = Target.GetComponent<IDHolder>().UniqueID;
-        Debug.Log("BTARGET ID: " + targetID);
-
+        
         if (Target != null)
         {
-            // determine an owner of this card
-            Player owner = null;
-            if (tag.Contains("Low"))
-                owner = GlobalSettings.Instance.LowPlayer;
-            else
-                owner = GlobalSettings.Instance.TopPlayer;
-                       
-            // check of we should play this spell depending on targeting options
+            CreatureLogic cl = CreatureLogic.CreaturesCreatedThisGame[GetComponentInParent<IDHolder>().UniqueID];
+            int targetID = Target.GetComponent<IDHolder>().UniqueID;
+            Debug.Log("BattlecryTARGET ID: " + targetID);
             
             switch (Targets)
             {
@@ -129,7 +143,6 @@ public class DragCreatureBattlecry : DraggingActions
                 case TargetingOptions.EnemyCharacters:
                     if (Target.tag.Contains("Creature") || Target.tag.Contains("Player"))
                     {
-                        // had to check that target is not a card
                         if ((tag.Contains("Low") && Target.tag.Contains("Top"))
                            || (tag.Contains("Top") && Target.tag.Contains("Low")))
                         {
@@ -140,7 +153,6 @@ public class DragCreatureBattlecry : DraggingActions
                 case TargetingOptions.EnemyCreatures:
                     if (Target.tag.Contains("Creature"))
                     {
-                        // had to check that target is not a card or a player
                         if ((tag.Contains("Low") && Target.tag.Contains("Top"))
                             || (tag.Contains("Top") && Target.tag.Contains("Low")))
                         {
@@ -151,7 +163,6 @@ public class DragCreatureBattlecry : DraggingActions
                 case TargetingOptions.YourCharacters:
                     if (Target.tag.Contains("Creature") || Target.tag.Contains("Player"))
                     {
-                        // had to check that target is not a card
                         if ((tag.Contains("Low") && Target.tag.Contains("Low"))
                             || (tag.Contains("Top") && Target.tag.Contains("Top")))
                         {
@@ -162,7 +173,6 @@ public class DragCreatureBattlecry : DraggingActions
                 case TargetingOptions.YourCreatures:
                     if (Target.tag.Contains("Creature"))
                     {
-                        // had to check that target is not a card or a player
                         if ((tag.Contains("Low") && Target.tag.Contains("Low"))
                             || (tag.Contains("Top") && Target.tag.Contains("Top")))
                         {
@@ -174,24 +184,17 @@ public class DragCreatureBattlecry : DraggingActions
                     Debug.LogWarning("Reached default case in DragSpellOnTarget! Suspicious behaviour!!");
                     break;
             }
+
+            if (targetValid)
+            {
+                cl.TriggerBattlecry(targetID);
+                TurnTargetingOff();
+            }
         }
 
-        transform.localPosition = new Vector3(0f, 0f, 0.4f);
-        
-        if(targetValid)
-        {
-            cl.TriggerBattlecry(targetID);
-            GetComponent<DraggableBattlecry>().dragging = false;
-            sr.enabled = false;
-            lr.enabled = false;
-            triangleSR.enabled = false;
-        }
-        else
-        {
+        if(!targetValid)
+            InfoManager.Instance.ShowMessage("Wrong target!", 2f);
 
-        }
-
-       /* transform.localPosition = new Vector3(0f, 0f, 0.4f);*/
-  }
+    }
     
 }

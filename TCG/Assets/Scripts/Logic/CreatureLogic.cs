@@ -5,12 +5,13 @@ using System.Collections.Generic;
 [System.Serializable]
 public class CreatureLogic: ICharacter 
 {
-    // PUBLIC FIELDS
     public Player owner;
     public CardAsset ca;
     public CreatureEffect effect;
     public int UniqueCreatureID;
 
+    // для хранения пар ID - CreatureLogic
+    public static Dictionary<int, CreatureLogic> CreaturesCreatedThisGame = new Dictionary<int, CreatureLogic>();
 
     public int ID
     {
@@ -18,12 +19,13 @@ public class CreatureLogic: ICharacter
     }
     public bool Frozen = false;
 
-    // the basic health that we have in CardAsset
     private int baseHealth;
-    // health with all the current buffs taken into account
+    private int maxHealth;
+   
     public int MaxHealth
     {
-        get{ return baseHealth;}
+        get { return maxHealth; }
+        set { maxHealth = value > 0 ? value : baseHealth; }
     }
         
     private int health;
@@ -53,11 +55,12 @@ public class CreatureLogic: ICharacter
     }
 
     private int baseAttack;
-    // attack with buffs
+    private int attack;      
+
     public int Attack
     {
-        get{ return baseAttack; }
-
+        get { return attack; }
+        set { attack = value >= 0 ? value : baseAttack; }
     }
         
     private int attacksForOneTurn = 1;
@@ -67,15 +70,13 @@ public class CreatureLogic: ICharacter
         set;
     }
 
-    // CONSTRUCTOR
     public CreatureLogic(Player owner, CardAsset ca)
     {
         this.ca = ca;
-        baseHealth = ca.MaxHealth;
-        Health = ca.MaxHealth;
-        baseAttack = ca.Attack;
+        Health = MaxHealth = baseHealth = ca.MaxHealth;
+        Attack = baseAttack = ca.Attack;
         attacksForOneTurn = ca.AttacksForOneTurn;
-        // AttacksLeftThisTurn is now equal to 0
+        // AttacksLeftThisTurn сейчас равно 0
         if (ca.Charge)
             AttacksLeftThisTurn = attacksForOneTurn;
         this.owner = owner;
@@ -146,8 +147,5 @@ public class CreatureLogic: ICharacter
             effect.Battlecry(Target);
         }
     }
-
-    // STATIC For managing IDs
-    public static Dictionary<int, CreatureLogic> CreaturesCreatedThisGame = new Dictionary<int, CreatureLogic>();
 
 }

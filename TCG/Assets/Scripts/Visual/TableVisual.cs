@@ -10,7 +10,7 @@ public class TableVisual : MonoBehaviour
     // ссылка на объект, который отмечает позиции, на которые необходимо помещать существ
     public SameDistanceChildren slots;
 
-    private List<GameObject> CreaturesOnTable = new List<GameObject>();
+    public List<GameObject> CreaturesOnTable = new List<GameObject>();
 
     // затрагивает ли курсор коллайдер col
     private bool cursorOverThisTable = false;
@@ -53,7 +53,7 @@ public class TableVisual : MonoBehaviour
         cursorOverThisTable = passedThroughTableCollider;
     }
    
-    public void AddCreatureAtIndex(CardAsset ca, int UniqueID ,int index)
+    public void AddCreatureAtIndex(CardAsset ca, int UniqueID, int index)
     {
         // создаем новый gameobject
         GameObject creature = GameObject.Instantiate(GlobalSettings.Instance.CreaturePrefab, slots.Children[index].transform.position, Quaternion.identity) as GameObject;
