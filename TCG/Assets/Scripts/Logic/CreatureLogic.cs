@@ -7,8 +7,8 @@ public class CreatureLogic: ICharacter
 {
     public Player owner;
     public CardAsset ca;
-    public CreatureEffect effect;
     public int UniqueCreatureID;
+    public readonly bool hasBattlecry = false;
 
     // для хранения пар ID - CreatureLogic
     public static Dictionary<int, CreatureLogic> CreaturesCreatedThisGame = new Dictionary<int, CreatureLogic>();
@@ -81,25 +81,67 @@ public class CreatureLogic: ICharacter
             AttacksLeftThisTurn = attacksForOneTurn;
         this.owner = owner;
         UniqueCreatureID = IDFactory.GetUniqueID();
-        if (ca.CreatureScriptName!= null && ca.CreatureScriptName!= "")
+
+        CreatureEffect effect;
+
+        if(ca.BattlecryEffectName != null && ca.BattlecryEffectName != "")
         {
-            effect = System.Activator.CreateInstance(System.Type.GetType(ca.CreatureScriptName), new System.Object[]{owner, this, ca.specialCreatureAmount}) as CreatureEffect;
-            effect.RegisterEffect();
+            effect = System.Activator.CreateInstance(System.Type.GetType(ca.BattlecryEffectName), new System.Object[] { owner, this }) as CreatureEffect;
+            hasBattlecry = true;
+            CreatureWasPlayed += effect.CauseEffect;
         }
+        if (ca.DeathrattleEffectName != null && ca.DeathrattleEffectName != "")
+        {
+            effect = System.Activator.CreateInstance(System.Type.GetType(ca.DeathrattleEffectName), new System.Object[] { owner, this }) as CreatureEffect;
+            CreatureHasDied += effect.CauseEffect;
+        }
+        if (ca.TurnEndEffectName != null && ca.TurnEndEffectName != "")
+        {
+            effect = System.Activator.CreateInstance(System.Type.GetType(ca.TurnEndEffectName), new System.Object[] { owner, this }) as CreatureEffect;
+            TurnEnd += effect.CauseEffect;
+        }
+        if (ca.TurnStartEffectName != null && ca.TurnStartEffectName != "")
+        {
+            effect = System.Activator.CreateInstance(System.Type.GetType(ca.TurnStartEffectName), new System.Object[] { owner, this }) as CreatureEffect;
+            TurnStart += effect.CauseEffect;
+        }
+        if (ca.CreatureAttackedEffectName != null && ca.CreatureAttackedEffectName != "")
+        {
+            effect = System.Activator.CreateInstance(System.Type.GetType(ca.CreatureAttackedEffectName), new System.Object[] { owner, this }) as CreatureEffect;
+            CreatureHasAttacked += effect.CauseEffect;
+        }
+        if (ca.OtherCreatureDiedEffectName != null && ca.OtherCreatureDiedEffectName != "")
+        {
+            effect = System.Activator.CreateInstance(System.Type.GetType(ca.OtherCreatureDiedEffectName), new System.Object[] { owner, this }) as CreatureEffect;
+            OtherCreatureHasDied += effect.CauseEffect;
+        }
+        if (ca.OtherCreaturePlayedEffectName != null && ca.OtherCreaturePlayedEffectName != "")
+        {
+            effect = System.Activator.CreateInstance(System.Type.GetType(ca.OtherCreaturePlayedEffectName), new System.Object[] { owner, this }) as CreatureEffect;
+            OtherCreatureWasPlayed += effect.CauseEffect;
+        }
+        
         CreaturesCreatedThisGame.Add(UniqueCreatureID, this);
     }
 
     public void OnTurnStart()
     {
         AttacksLeftThisTurn = attacksForOneTurn;
+        if (TurnStart != null)
+            TurnStart.Invoke();
+    }
+    public void OnTurnEnd()
+    {
+        if (TurnEnd != null)
+            TurnEnd.Invoke();
     }
 
     public void Die()
     {   
         owner.table.CreaturesOnTable.Remove(this);
-        if (effect != null)
-            effect.Deathrattle();
         new CreatureDieCommand(UniqueCreatureID, owner).AddToQueue();
+        if (CreatureHasDied != null)
+            CreatureHasDied.Invoke();
     }
 
     public void GoFace()
@@ -108,6 +150,8 @@ public class CreatureLogic: ICharacter
         int targetHealthAfter = owner.otherPlayer.Health - Attack;
         new CreatureAttackCommand(owner.otherPlayer.PlayerID, UniqueCreatureID, 0, Attack, Health, targetHealthAfter).AddToQueue();
         owner.otherPlayer.Health -= Attack;
+        if (CreatureHasAttacked != null)
+            CreatureHasAttacked.Invoke();
     }
 
     public void AttackCreature (CreatureLogic target)
@@ -120,6 +164,9 @@ public class CreatureLogic: ICharacter
 
         target.Health -= Attack;
         Health -= target.Attack;
+
+        if (CreatureHasAttacked != null)
+            CreatureHasAttacked.Invoke();
     }
 
     public void AttackCreatureWithID(int uniqueCreatureID)
@@ -142,10 +189,17 @@ public class CreatureLogic: ICharacter
 
     public void TriggerBattlecry(ICharacter Target = null)
     {
-        if(effect != null)
-        {
-            effect.Battlecry(Target);
-        }
+        CreatureWasPlayed.Invoke(Target);
     }
+
+    public delegate void EventHandler(ICharacter target = null);
+    
+    public event EventHandler CreatureWasPlayed;
+    public event EventHandler CreatureHasDied;
+    public event EventHandler TurnEnd;
+    public event EventHandler TurnStart;
+    public event EventHandler CreatureHasAttacked;
+    public event EventHandler OtherCreatureWasPlayed;
+    public event EventHandler OtherCreatureHasDied;
 
 }

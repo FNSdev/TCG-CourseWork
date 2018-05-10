@@ -54,7 +54,7 @@ public class GlobalSettings: MonoBehaviour
     {
         bool PlayersTurn = (TurnManager.Instance.WhoseTurn == ownerPlayer);
         bool NotDrawingAnyCards = !Command.CardDrawPending();
-        return ownerPlayer.PArea.AllowedToControlThisPlayer && ownerPlayer.PArea.ControlsON && PlayersTurn && NotDrawingAnyCards;
+        return ownerPlayer.PArea.AllowedToControlThisPlayer && ownerPlayer.PArea.ControlsON && PlayersTurn && NotDrawingAnyCards && DraggingEnabled;
     }
 
     public void EnableEndTurnButtonOnStart(Player P)
@@ -66,4 +66,7 @@ public class GlobalSettings: MonoBehaviour
             EndTurnButton.interactable = false;
             
     }
+
+    public bool DraggingEnabled = true;
+
 }

@@ -11,31 +11,22 @@ public class DraggableBattlecry : MonoBehaviour {
 
     // distance from camera to mouse on Z axis 
     private float zDisplacement;
-
-    // reference to DraggingActions script. Dragging Actions should be attached to the same GameObject.
     private DragCreatureBattlecry battlecryDA;
 
-
-    // STATIC property that returns the instance of Draggable that is currently being dragged
-
-    // MONOBEHAVIOUR METHODS
     void Awake()
     {
         battlecryDA = GetComponent<DragCreatureBattlecry>();
     }
     
-    // Update is called once per frame
     void Update()
     {
         if (dragging)
         {
             Vector3 mousePos = MouseInWorldCoords();
-            //Debug.Log(mousePos);
             transform.position = new Vector3(mousePos.x - pointerDisplacement.x, mousePos.y - pointerDisplacement.y, transform.position.z);
             battlecryDA.OnDraggingInUpdate();
             if(Input.GetMouseButtonDown(0))
             {
-                HoverPreview.PreviewsAllowed = true;
                 battlecryDA.OnEndDrag();
             }
         }
@@ -43,7 +34,7 @@ public class DraggableBattlecry : MonoBehaviour {
 
     public void ActivateDragging()
     {
-        if (battlecryDA != null && CreatureLogic.CreaturesCreatedThisGame[GetComponentInParent<IDHolder>().UniqueID].effect != null)
+        if (battlecryDA != null) 
         {
             dragging = true;
             // when we are dragging something, all previews should be off
@@ -58,7 +49,6 @@ public class DraggableBattlecry : MonoBehaviour {
     public Vector3 MouseInWorldCoords()
     {
         var screenMousePos = Input.mousePosition;
-        //Debug.Log(screenMousePos);
         screenMousePos.z = zDisplacement;
         return Camera.main.ScreenToWorldPoint(screenMousePos);
     }

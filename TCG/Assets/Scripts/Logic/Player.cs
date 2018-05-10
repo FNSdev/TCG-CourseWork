@@ -128,6 +128,8 @@ public class Player : MonoBehaviour, ICharacter
         {
             creature.GetComponentInChildren<DragCreatureBattlecry>().TurnTargetingOff();
         }
+        foreach (CreatureLogic cl in table.CreaturesOnTable)
+            cl.OnTurnEnd();
     }
 
     public void DrawACard(bool fast = false)

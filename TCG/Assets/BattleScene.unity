@@ -2462,6 +2462,7 @@ MonoBehaviour:
   EndTurnButton: {fileID: 869915146}
   CoinCard: {fileID: 11400000, guid: a2a99bd9f79ac86459971a0ba9cf2d16, type: 2}
   GameOverCanvas: {fileID: 0}
+  DraggingEnabled: 1
 --- !u!4 &1283064750
 Transform:
   m_ObjectHideFlags: 0

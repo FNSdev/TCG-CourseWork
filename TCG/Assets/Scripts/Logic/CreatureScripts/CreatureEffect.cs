@@ -5,21 +5,13 @@ public abstract class CreatureEffect
 {
     protected Player owner;
     protected CreatureLogic creature;
-    protected int specialAmount;
 
-    public CreatureEffect(Player owner, CreatureLogic creature, int specialAmount)
+    public CreatureEffect(Player owner, CreatureLogic creature)
     {
         this.creature = creature;
         this.owner = owner;
-        this.specialAmount = specialAmount;
     }
 
-    public virtual void RegisterEffect() { }
-
-    public virtual void CauseEffect() { }
-
-    public virtual void Battlecry(ICharacter Target = null) { }
-
-    public virtual void Deathrattle() { }
+    public virtual void CauseEffect(ICharacter Target = null) { }
 
 }

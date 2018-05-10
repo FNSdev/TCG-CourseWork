@@ -48,6 +48,7 @@ public class DragSpellNoTarget: DraggingActions{
         {
             // Set old sorting order 
             whereIsCard.Slot = savedHandSlot;
+            whereIsCard.SetHandSortingOrder();
             if (tag.Contains("Low"))
                 whereIsCard.VisualState = VisualStates.LowHand;
             else

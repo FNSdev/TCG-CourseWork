@@ -15,12 +15,18 @@ MonoBehaviour:
   Description: 
   CardImage: {fileID: 21300000, guid: 3b8652d667ed8e64ca31106589e64fb0, type: 3}
   ManaCost: 0
+  Targets: 1
   MaxHealth: 1
   Attack: 1
   AttacksForOneTurn: 1
   Charge: 0
-  CreatureScriptName: DealDamageToCreature
-  specialCreatureAmount: 3
+  BattlecryEffectName: DealDamageToCreature
+  DeathrattleEffectName: 
+  TurnEndEffectName: 
+  TurnStartEffectName: 
+  OtherCreaturePlayedEffectName: 
+  OtherCreatureDiedEffectName: 
+  CreatureAttackedEffectName: 
+  CardWasDrawnEffectName: 
   SpellScriptName: 
   specialSpellAmount: 0
-  Targets: 1

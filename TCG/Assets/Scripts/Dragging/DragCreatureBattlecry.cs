@@ -45,6 +45,7 @@ public class DragCreatureBattlecry : DraggingActions
         screenMousePos.z = z;
 
         transform.position = Camera.main.ScreenToWorldPoint(screenMousePos);
+        GlobalSettings.Instance.DraggingEnabled = false;
 
         InfoManager.Instance.ShowTip("Press <ESC> to cancel battlecry");
     }
@@ -84,6 +85,8 @@ public class DragCreatureBattlecry : DraggingActions
         transform.localPosition = new Vector3(0f, 0f, -0.1f);
         whereIsThisCard.VisualState = tempVisualState;
         InfoManager.Instance.HideTip();
+        GlobalSettings.Instance.DraggingEnabled = true;
+        HoverPreview.PreviewsAllowed = true;
     }
 
     public override void OnEndDrag()

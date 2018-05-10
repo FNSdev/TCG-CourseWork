@@ -92,7 +92,8 @@ public class TableVisual : MonoBehaviour
         //TEST
 
         DraggableBattlecry DB = creature.gameObject.GetComponentInChildren<DraggableBattlecry>();
-        if (DB != null)
+       
+        if (CreatureLogic.CreaturesCreatedThisGame[UniqueID].hasBattlecry)
             DB.ActivateDragging();
 
         // заканчиваем выполнение комманды

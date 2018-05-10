@@ -21,18 +21,25 @@ public class CardAsset : ScriptableObject
     public string Description;
     public Sprite CardImage;
     public int ManaCost;
+    public TargetingOptions Targets;
 
     [Header("Creature info")]
     public int MaxHealth; //если = 0, значит, это карта заклинания
     public int Attack;
     public int AttacksForOneTurn = 1;
     public bool Charge;
-    public string CreatureScriptName;
-    public int specialCreatureAmount;
-
+    public string BattlecryEffectName;
+    public string DeathrattleEffectName;
+    public string TurnEndEffectName;
+    public string TurnStartEffectName;
+    public string OtherCreaturePlayedEffectName;
+    public string OtherCreatureDiedEffectName;
+    public string CreatureAttackedEffectName;
+    public string CardWasDrawnEffectName;
+    
     [Header("Spell info")]
     public string SpellScriptName;
     public int specialSpellAmount;
-    public TargetingOptions Targets;
+    
 }
 

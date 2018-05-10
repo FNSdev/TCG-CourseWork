@@ -180,6 +180,7 @@ public class DragSpellOnTarget : DraggingActions {
             // not a valid target, return
             whereIsThisCard.VisualState = tempVisualState;
             whereIsThisCard.SetHandSortingOrder();
+            InfoManager.Instance.ShowMessage("Wrong target!", 2f);
         }
 
         // return target and arrow to original position
