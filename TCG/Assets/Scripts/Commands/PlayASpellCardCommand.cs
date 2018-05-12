@@ -16,7 +16,9 @@ public class PlayASpellCardCommand: Command
     public override void StartCommandExecution()
     {
         // move this card to the spot
+        p.hand.CardsInHand.Remove(card);
         p.PArea.handVisual.PlayASpellFromHand(card.UniqueCardID);
+        p.HighlightPlayableCards();
         // do all the visual stuff (for each spell separately????)
     }
 }

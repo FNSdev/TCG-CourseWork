@@ -9,20 +9,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f53fef07e1cb2142848c2e9a4134dc4, type: 3}
-  m_Name: Dwarf
+  m_Name: Swampler
   m_EditorClassIdentifier: 
-  characterAsset: {fileID: 11400000, guid: 0c7a1c3e73bb63848b2cf5bc83492813, type: 2}
+  characterAsset: {fileID: 0}
   Description: 
-  CardImage: {fileID: 21300000, guid: 3b8652d667ed8e64ca31106589e64fb0, type: 3}
+  CardImage: {fileID: 21300000, guid: 545e2607fac286542a21a30618d409bd, type: 3}
   ManaCost: 0
-  Targets: 1
+  Targets: 0
   MaxHealth: 1
   Attack: 1
   AttacksForOneTurn: 1
   Charge: 0
   Taunt: 0
-  TargetedBattlecry: 1
-  BattlecryEffectName: DealDamageToCreature
+  TargetedBattlecry: 0
+  BattlecryEffectName: 
   DeathrattleEffectName: 
   TurnEndEffectName: 
   TurnStartEffectName: 

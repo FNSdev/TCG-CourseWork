@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public class DragCreatureAttack : DraggingActions {
 
@@ -86,7 +88,6 @@ public class DragCreatureAttack : DraggingActions {
     {
         Target = null;
         RaycastHit[] hits;
-        // TODO: raycast here anyway, store the results in 
         hits = Physics.RaycastAll(origin: Camera.main.transform.position, 
             direction: (-Camera.main.transform.position + this.transform.position).normalized, 
             maxDistance: 30f) ;
@@ -107,45 +108,68 @@ public class DragCreatureAttack : DraggingActions {
             }
                
         }
-
-        bool targetValid = false;
-
+        
         if (Target != null)
         {
             int targetID = Target.GetComponent<IDHolder>().UniqueID;
             Debug.Log("Target ID: " + targetID);
-            if (targetID == GlobalSettings.Instance.LowPlayer.PlayerID || targetID == GlobalSettings.Instance.TopPlayer.PlayerID)
-            {
-                // attack character
-                Debug.Log("Attacking "+Target);
-                Debug.Log("TargetID: " + targetID);
-                CreatureLogic.CreaturesCreatedThisGame[GetComponentInParent<IDHolder>().UniqueID].GoFace();
-                targetValid = true;
-            }
-            else if (CreatureLogic.CreaturesCreatedThisGame[targetID] != null)
-            {
-                // if targeted creature is still alive, attack creature
-                targetValid = true;
-                CreatureLogic.CreaturesCreatedThisGame[GetComponentInParent<IDHolder>().UniqueID].AttackCreatureWithID(targetID);
-                Debug.Log("Attacking "+Target);
-            }
-                
-        }
+            
+            Player owner;
+            if (tag.Contains("Low"))
+                owner = GlobalSettings.Instance.LowPlayer;
+            else
+                owner = GlobalSettings.Instance.TopPlayer;
 
-        if (!targetValid)
-        {
-            // not a valid target, return
-            if(tag.Contains("Low"))
+            bool targetValid = true;
+            var creaturesWithTaunt = from creature in owner.otherPlayer.table.CreaturesOnTable where creature.Taunt == true select creature;
+            if (creaturesWithTaunt.Any())
             {
-                whereIsThisCreature.VisualState = VisualStates.LowTable;
+                try
+                {
+                    if(!creaturesWithTaunt.Contains(CreatureLogic.CreaturesCreatedThisGame[targetID]))
+                    {
+                        targetValid = false;
+                    }
+                }
+                catch(KeyNotFoundException)
+                {
+                    targetValid = false;
+                }
+            } 
+
+            if (!targetValid)
+            {
+                // not a valid target, return
+                if (tag.Contains("Low"))
+                {
+                    whereIsThisCreature.VisualState = VisualStates.LowTable;
+                }
+                else
+                {
+                    whereIsThisCreature.VisualState = VisualStates.TopTable;
+                }
+
+                InfoManager.Instance.ShowMessage("You must attack creature with taunt!", 2f);
+                whereIsThisCreature.SetTableSortingOrder();
             }
             else
             {
-                whereIsThisCreature.VisualState = VisualStates.TopTable;
+                if (targetID == GlobalSettings.Instance.LowPlayer.PlayerID || targetID == GlobalSettings.Instance.TopPlayer.PlayerID)
+                {
+                    // attack character
+                    Debug.Log("Attacking " + Target);
+                    Debug.Log("TargetID: " + targetID);
+                    CreatureLogic.CreaturesCreatedThisGame[GetComponentInParent<IDHolder>().UniqueID].GoFace();
+                }
+                else if (CreatureLogic.CreaturesCreatedThisGame[targetID] != null)
+                {
+                    // if targeted creature is still alive, attack creature
+                    CreatureLogic.CreaturesCreatedThisGame[GetComponentInParent<IDHolder>().UniqueID].AttackCreatureWithID(targetID);
+                    Debug.Log("Attacking " + Target);
+                }
             }
-           
-            whereIsThisCreature.SetTableSortingOrder();
         }
+
 
         // return target and arrow to original position
         transform.localPosition = Vector3.zero;

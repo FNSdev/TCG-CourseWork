@@ -3,30 +3,29 @@ using System.Collections;
 
 public class CreatureAttackCommand : Command 
 {
-    // position of creature on enemy`s table that will be attacked
-    // if enemyindex == -1 , attack an enemy character 
-    private int TargetUniqueID;
-    private int AttackerUniqueID;
+    private ICharacter Target;
+    private ICharacter Attacker;
     private int AttackerHealthAfter;
     private int TargetHealthAfter;
     private int DamageTakenByAttacker;
     private int DamageTakenByTarget;
 
-    public CreatureAttackCommand(int targetID, int attackerID, int damageTakenByAttacker, int damageTakenByTarget, int attackerHealthAfter, int targetHealthAfter)
+    public CreatureAttackCommand(ICharacter target, ICharacter attacker, int damageTakenByAttacker, int damageTakenByTarget, int attackerHealthAfter, int targetHealthAfter)
     {
-        this.TargetUniqueID = targetID;
-        this.AttackerUniqueID = attackerID;
-        this.AttackerHealthAfter = attackerHealthAfter;
-        this.TargetHealthAfter = targetHealthAfter;
-        this.DamageTakenByTarget = damageTakenByTarget;
-        this.DamageTakenByAttacker = damageTakenByAttacker;
+        Target = target;
+        Attacker = attacker;
+        AttackerHealthAfter = attackerHealthAfter;
+        TargetHealthAfter = targetHealthAfter;
+        DamageTakenByTarget = damageTakenByTarget;
+        DamageTakenByAttacker = damageTakenByAttacker;
     }
 
     public override void StartCommandExecution()
     {
-        GameObject Attacker = IDHolder.GetGameObjectWithID(AttackerUniqueID);
+        GameObject AttackerObject = IDHolder.GetGameObjectWithID(Attacker.ID);
+        AttackerObject.GetComponent<CreatureAttackVisual>().AttackTarget(Target.ID, DamageTakenByTarget, DamageTakenByAttacker, AttackerHealthAfter, TargetHealthAfter);
 
-        //Debug.Log(TargetUniqueID);
-        Attacker.GetComponent<CreatureAttackVisual>().AttackTarget(TargetUniqueID, DamageTakenByTarget, DamageTakenByAttacker, AttackerHealthAfter, TargetHealthAfter);
+        Target.Health = TargetHealthAfter;
+        Attacker.Health = AttackerHealthAfter;
     }
 }

@@ -53,7 +53,7 @@ public class TableVisual : MonoBehaviour
         cursorOverThisTable = passedThroughTableCollider;
     }
    
-    public void AddCreatureAtIndex(CardAsset ca, int UniqueID, int index)
+    public void AddCreatureAtIndex(CardAsset ca, int UniqueID, int index, bool CompleteExecution = true)
     {
         // создаем новый gameobject
         GameObject creature = GameObject.Instantiate(GlobalSettings.Instance.CreaturePrefab, slots.Children[index].transform.position, Quaternion.identity) as GameObject;
@@ -84,20 +84,23 @@ public class TableVisual : MonoBehaviour
         // добавляем уникальный ID
         IDHolder id = creature.AddComponent<IDHolder>();
         id.UniqueID = UniqueID;
-
-        // обновляем местоположение остальных существ на столе
+                  // обновляем местоположение остальных существ на столе
         ShiftSlotsGameObjectAccordingToNumberOfCreatures();
         PlaceCreaturesOnNewSlots();
 
         //TEST
 
         DraggableBattlecry DB = creature.gameObject.GetComponentInChildren<DraggableBattlecry>();
-       
-        if (CreatureLogic.CreaturesCreatedThisGame[UniqueID].hasBattlecry)
+        CreatureLogic CL = CreatureLogic.CreaturesCreatedThisGame[UniqueID];
+
+        if (CL.hasBattlecry && CL.TargetedBattlecry)
             DB.ActivateDragging();
+        else if (CL.hasBattlecry)
+            CL.TriggerBattlecry();
 
         // заканчиваем выполнение комманды
-        Command.CommandExecutionComplete();
+        if(CompleteExecution)
+            Command.CommandExecutionComplete();
     }
 
 

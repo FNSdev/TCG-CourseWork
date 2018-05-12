@@ -6,14 +6,14 @@ public class PlayACreatureCommand : Command
     private CardLogic cl;
     private int tablePos;
     private Player p;
-    private int creatureID;
+    private CreatureLogic Creature;
 
-    public PlayACreatureCommand(CardLogic cl, Player p, int tablePos, int creatureID)
+    public PlayACreatureCommand(CardLogic cl, Player p, int tablePos, CreatureLogic creature)
     {
         this.p = p;
         this.cl = cl;
         this.tablePos = tablePos;
-        this.creatureID = creatureID;
+        Creature = creature;
     }
 
     public override void StartCommandExecution()
@@ -26,6 +26,11 @@ public class PlayACreatureCommand : Command
         // enable Hover Previews Back
         HoverPreview.PreviewsAllowed = true;
         // move this card to the spot 
-        p.PArea.tableVisual.AddCreatureAtIndex(cl.ca, creatureID, tablePos);
+
+        p.hand.CardsInHand.Remove(cl);
+        p.table.CreaturesOnTable.Insert(tablePos, Creature);
+
+        p.PArea.tableVisual.AddCreatureAtIndex(cl.ca, Creature.ID, tablePos);
+        p.HighlightPlayableCards();
     }
 }

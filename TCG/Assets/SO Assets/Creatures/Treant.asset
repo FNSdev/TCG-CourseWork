@@ -15,12 +15,20 @@ MonoBehaviour:
   Description: 
   CardImage: {fileID: 21300000, guid: 5890b6c56a9fd284a859dd82fab9f9f1, type: 3}
   ManaCost: 0
+  Targets: 0
   MaxHealth: 1
   Attack: 1
   AttacksForOneTurn: 1
   Charge: 0
-  CreatureScriptName: 
-  specialCreatureAmount: 0
+  Taunt: 1
+  TargetedBattlecry: 0
+  BattlecryEffectName: Summon2SwamplersForOpponent
+  DeathrattleEffectName: 
+  TurnEndEffectName: 
+  TurnStartEffectName: 
+  OtherCreaturePlayedEffectName: 
+  OtherCreatureDiedEffectName: 
+  CreatureAttackedEffectName: 
+  CardWasDrawnEffectName: 
   SpellScriptName: 
   specialSpellAmount: 0
-  Targets: 0

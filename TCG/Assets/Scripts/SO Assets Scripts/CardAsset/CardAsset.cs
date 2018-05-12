@@ -28,6 +28,8 @@ public class CardAsset : ScriptableObject
     public int Attack;
     public int AttacksForOneTurn = 1;
     public bool Charge;
+    public bool Taunt;
+    public bool TargetedBattlecry;
     public string BattlecryEffectName;
     public string DeathrattleEffectName;
     public string TurnEndEffectName;

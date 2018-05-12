@@ -143,12 +143,12 @@ public class Player : MonoBehaviour, ICharacter
                 // 2) logic: add card to hand
                 CardLogic newCard = new CardLogic(deck.cards[0]);
                 newCard.owner = this;
-                hand.CardsInHand.Add(newCard);
+              //  hand.CardsInHand.Add(newCard);
                 // Debug.Log(hand.CardsInHand.Count);
                 // 3) logic: remove the card from the deck
                 deck.cards.RemoveAt(0);
                 // 4) create a command
-                new DrawACardCommand(hand.CardsInHand[indexToPlaceACard], this, fast, fromDeck: true).AddToQueue();
+                new DrawACardCommand(newCard, this, fast, fromDeck: true).AddToQueue();
             }
         }
         else
@@ -165,9 +165,9 @@ public class Player : MonoBehaviour, ICharacter
             // 1) logic: add card to hand
             CardLogic newCard = new CardLogic(GlobalSettings.Instance.CoinCard);
             newCard.owner = this;
-            hand.CardsInHand.Add(newCard);
+          //  hand.CardsInHand.Add(newCard);
             // 2) send message to the visual Deck
-            new DrawACardCommand(hand.CardsInHand[hand.CardsInHand.Count - 1], this, fast: true, fromDeck: false).AddToQueue();
+            new DrawACardCommand(newCard, this, fast: true, fromDeck: false).AddToQueue();
         }
         // no removal from deck because the coin was not in the deck
     }
@@ -196,19 +196,14 @@ public class Player : MonoBehaviour, ICharacter
 
     public void PlayASpellFromHand(CardLogic playedCard, ICharacter target)
     {
-        ManaLeft -= playedCard.CurrentManaCost;
-        // cause effect instantly:
         if (playedCard.effect != null)
             playedCard.effect.ActivateEffect(playedCard.ca.specialSpellAmount, target);
         else
         {
             Debug.LogWarning("No effect found on card " + playedCard.ca.name);
         }
-        // no matter what happens, move this card to PlayACardSpot
         new PlayASpellCardCommand(this, playedCard).AddToQueue();
-        // remove this card from hand
-        hand.CardsInHand.Remove(playedCard);
-        // check if this is a creature or a spell
+        ManaLeft -= playedCard.CurrentManaCost;
     }
 
     public void PlayACreatureFromHand(int UniqueID, int tablePos)
@@ -220,16 +215,11 @@ public class Player : MonoBehaviour, ICharacter
     {
         Debug.Log(ManaLeft);
         Debug.Log(playedCard.CurrentManaCost);
-        ManaLeft -= playedCard.CurrentManaCost;
         Debug.Log("Mana Left after played a creature: " + ManaLeft);
-        // create a new creature object and add it to Table
         CreatureLogic newCreature = new CreatureLogic(this, playedCard.ca);
-        table.CreaturesOnTable.Insert(tablePos, newCreature);
-        // no matter what happens, move this card to PlayACardSpot
-        new PlayACreatureCommand(playedCard, this, tablePos, newCreature.UniqueCreatureID).AddToQueue();
-        // remove this card from hand
-        hand.CardsInHand.Remove(playedCard);
-        HighlightPlayableCards();
+        new PlayACreatureCommand(playedCard, this, tablePos, newCreature).AddToQueue();
+        ManaLeft -= playedCard.CurrentManaCost;
+        //HighlightPlayableCards();
     }
 
     public void Die()
@@ -245,7 +235,7 @@ public class Player : MonoBehaviour, ICharacter
     // METHODS TO SHOW GLOW HIGHLIGHTS
     public void HighlightPlayableCards(bool removeAllHighlights = false)
     {
-        //Debug.Log("HighlightPlayable remove: "+ removeAllHighlights);
+       // Debug.Log("HighlightPlayable for player :" + tag);
         foreach (CardLogic cl in hand.CardsInHand)
         {
             GameObject g = IDHolder.GetGameObjectWithID(cl.UniqueCardID);

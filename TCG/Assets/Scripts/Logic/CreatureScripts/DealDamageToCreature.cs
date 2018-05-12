@@ -14,8 +14,7 @@ public class DealDamageToCreature : CreatureEffect {
     }
     public override void CauseEffect(ICharacter target)
     {
-        new DealDamageCommand(target.ID, _damage, target.Health - _damage).AddToQueue();
-        target.Health -= _damage;
+        new DealDamageCommand(target, _damage, target.Health - _damage).AddToQueue();
     }
               
 }

@@ -15,7 +15,6 @@ public class DrawACardCommand : Command
     {
         this.cl = cl;
         this.p = p;
-        //handPos = positionInHand;
         this.fast = fast;
         this.fromDeck = fromDeck;
     }
@@ -23,5 +22,8 @@ public class DrawACardCommand : Command
     {
         p.PArea.PDeck.CardsInDeck--;
         p.PArea.handVisual.GivePlayerACard(cl.ca, cl.UniqueCardID, fast, fromDeck);
+        p.hand.CardsInHand.Add(cl);
+        /*if(fromDeck)
+            p.deck.cards.RemoveAt(0);*/
     }
 }

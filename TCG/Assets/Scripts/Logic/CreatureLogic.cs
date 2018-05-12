@@ -5,6 +5,16 @@ using System.Collections.Generic;
 [System.Serializable]
 public class CreatureLogic: ICharacter 
 {
+    public delegate void EventHandler(ICharacter target = null);
+
+    public event EventHandler CreatureWasPlayed;
+    public event EventHandler CreatureHasDied;
+    public event EventHandler TurnEnd;
+    public event EventHandler TurnStart;
+    public event EventHandler CreatureHasAttacked;
+    public event EventHandler OtherCreatureWasPlayed;
+    public event EventHandler OtherCreatureHasDied;
+
     public Player owner;
     public CardAsset ca;
     public int UniqueCreatureID;
@@ -18,6 +28,8 @@ public class CreatureLogic: ICharacter
         get { return UniqueCreatureID; }
     }
     public bool Frozen = false;
+    public bool Taunt;
+    public bool TargetedBattlecry;
 
     private int baseHealth;
     private int maxHealth;
@@ -76,12 +88,14 @@ public class CreatureLogic: ICharacter
         Health = MaxHealth = baseHealth = ca.MaxHealth;
         Attack = baseAttack = ca.Attack;
         attacksForOneTurn = ca.AttacksForOneTurn;
+        TargetedBattlecry = ca.TargetedBattlecry;
+        
         // AttacksLeftThisTurn сейчас равно 0
         if (ca.Charge)
             AttacksLeftThisTurn = attacksForOneTurn;
         this.owner = owner;
         UniqueCreatureID = IDFactory.GetUniqueID();
-
+        Taunt = ca.Taunt;
         CreatureEffect effect;
 
         if(ca.BattlecryEffectName != null && ca.BattlecryEffectName != "")
@@ -148,8 +162,7 @@ public class CreatureLogic: ICharacter
     {
         AttacksLeftThisTurn--;
         int targetHealthAfter = owner.otherPlayer.Health - Attack;
-        new CreatureAttackCommand(owner.otherPlayer.PlayerID, UniqueCreatureID, 0, Attack, Health, targetHealthAfter).AddToQueue();
-        owner.otherPlayer.Health -= Attack;
+        new CreatureAttackCommand(owner.otherPlayer, this, 0, Attack, Health, targetHealthAfter).AddToQueue();
         if (CreatureHasAttacked != null)
             CreatureHasAttacked.Invoke();
     }
@@ -160,11 +173,7 @@ public class CreatureLogic: ICharacter
         // calculate the values so that the creature does not fire the DIE command before the Attack command is sent
         int targetHealthAfter = target.Health - Attack;
         int attackerHealthAfter = Health - target.Attack;
-        new CreatureAttackCommand(target.UniqueCreatureID, UniqueCreatureID, target.Attack, Attack, attackerHealthAfter, targetHealthAfter).AddToQueue();
-
-        target.Health -= Attack;
-        Health -= target.Attack;
-
+        new CreatureAttackCommand(target, this, target.Attack, Attack, attackerHealthAfter, targetHealthAfter).AddToQueue();
         if (CreatureHasAttacked != null)
             CreatureHasAttacked.Invoke();
     }
@@ -191,15 +200,5 @@ public class CreatureLogic: ICharacter
     {
         CreatureWasPlayed.Invoke(Target);
     }
-
-    public delegate void EventHandler(ICharacter target = null);
-    
-    public event EventHandler CreatureWasPlayed;
-    public event EventHandler CreatureHasDied;
-    public event EventHandler TurnEnd;
-    public event EventHandler TurnStart;
-    public event EventHandler CreatureHasAttacked;
-    public event EventHandler OtherCreatureWasPlayed;
-    public event EventHandler OtherCreatureHasDied;
 
 }
