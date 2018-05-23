@@ -9,18 +9,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f53fef07e1cb2142848c2e9a4134dc4, type: 3}
-  m_Name: Zhenya
+  m_Name: Viking
   m_EditorClassIdentifier: 
   characterAsset: {fileID: 0}
-  Description: 
+  Description: 'Deathrattle: give you a Coin'
   CardImage: {fileID: 21300000, guid: da2ac765af5664048826381c2243354d, type: 3}
-  ManaCost: 6
-  MaxHealth: 7
-  Attack: 4
-  AttacskForOneTurn: 1
+  ManaCost: 2
+  Targets: 0
+  MaxHealth: 1
+  Attack: 3
+  AttacksForOneTurn: 1
   Charge: 0
-  CreatureScriptName: 
-  specialCreatureAmount: 0
+  Taunt: 0
+  TargetedBattlecry: 0
+  BattlecryEffectName: 
+  DeathrattleEffectName: GiveYouCoin
+  TurnEndEffectName: 
+  TurnStartEffectName: 
+  OtherCreaturePlayedEffectName: 
+  OtherCreatureDiedEffectName: 
+  CreatureAttackedEffectName: 
+  CardWasDrawnEffectName: 
   SpellScriptName: 
   specialSpellAmount: 0
-  Targets: 5

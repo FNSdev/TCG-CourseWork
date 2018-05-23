@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 public class Command
 {
     public static Queue<Command> CommandQueue = new Queue<Command>();
     public static bool playingQueue = false;
+    public Player CommandSender = GlobalSettings.Instance.LowPlayer;
 
     public virtual void AddToQueue()
     {
@@ -43,7 +45,7 @@ public class Command
     {
         foreach (Command c in CommandQueue)
         {
-            if (c is DrawACardCommand)
+            if (c is DrawACardCommand || c is GetACardCommand)
             {
                 Debug.Log("Drags not allowed!");
                 return true;

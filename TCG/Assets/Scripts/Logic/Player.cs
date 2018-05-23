@@ -15,8 +15,10 @@ public class Player : MonoBehaviour, ICharacter
 
     public Transform StartingPosition;
 
+
     private int bonusManaThisTurn = 0;
     public bool usedHeroPowerThisTurn = false;
+    public const int maxAmountOfMana = 10;
 
     public int ID
     {
@@ -29,8 +31,7 @@ public class Player : MonoBehaviour, ICharacter
         get{ return manaThisTurn;}
         set
         {
-            manaThisTurn = value;
-            //PArea.ManaBar.TotalCrystals = manaThisTurn;
+            manaThisTurn = value <= 10 ? value : maxAmountOfMana;
             new UpdateManaCrystalsCommand(this, manaThisTurn, manaLeft).AddToQueue();
         }
     }
@@ -39,13 +40,12 @@ public class Player : MonoBehaviour, ICharacter
     public int ManaLeft
     {
         get
-        { return manaLeft;}
+        { return manaLeft; }
         set
         {
             manaLeft = value;
-            //PArea.ManaBar.AvailableCrystals = manaLeft;
             new UpdateManaCrystalsCommand(this, ManaThisTurn, manaLeft).AddToQueue();
-            //Debug.Log(ManaLeft);
+            PlayerConnection.SendCommandOnServer((byte)ID, CommandType.UpdateManaBar, ManaThisTurn.ToString(), manaLeft.ToString());
             if (TurnManager.Instance.WhoseTurn == this)
                 HighlightPlayableCards();
         }
@@ -86,6 +86,7 @@ public class Player : MonoBehaviour, ICharacter
     {
         Players = GameObject.FindObjectsOfType<Player>();
         PlayerID = IDFactory.GetUniqueID();
+        
     }
 
     void Update()
@@ -98,7 +99,6 @@ public class Player : MonoBehaviour, ICharacter
 
     public virtual void OnTurnStart()
     {
-        // add one mana crystal to the pool;
         Debug.Log("In ONTURNSTART for "+ gameObject.name);
         usedHeroPowerThisTurn = false;
         ManaThisTurn++;
@@ -126,34 +126,31 @@ public class Player : MonoBehaviour, ICharacter
         TableVisual TVistual = PArea.tableVisual.GetComponent<TableVisual>();
         foreach(GameObject creature in TVistual.CreaturesOnTable)
         {
-            creature.GetComponentInChildren<DragCreatureBattlecry>().TurnTargetingOff();
+            //if (CreatureLogic.CreaturesCreatedThisGame[creature.GetComponent<IDHolder>().UniqueID].TargetedBattlecry == true) // будет ошибка, если существо умерло до боевого клича?
+                creature.GetComponentInChildren<DragCreatureBattlecry>().TurnTargetingOff();
         }
         foreach (CreatureLogic cl in table.CreaturesOnTable)
             cl.OnTurnEnd();
     }
 
-    public void DrawACard(bool fast = false)
+    public bool DrawACard(bool fast = false)
     {
         if (deck.cards.Count > 0)
         {
             if (hand.CardsInHand.Count < PArea.handVisual.slots.Children.Length)
             {
-                // 1) save index to place a visual card into visual hand
-                int indexToPlaceACard = hand.CardsInHand.Count;
-                // 2) logic: add card to hand
-                CardLogic newCard = new CardLogic(deck.cards[0]);
-                newCard.owner = this;
-              //  hand.CardsInHand.Add(newCard);
-                // Debug.Log(hand.CardsInHand.Count);
-                // 3) logic: remove the card from the deck
-                deck.cards.RemoveAt(0);
-                // 4) create a command
-                new DrawACardCommand(newCard, this, fast, fromDeck: true).AddToQueue();
+                new DrawACardCommand(this, fast, fromDeck: true).AddToQueue();
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
         else
         {
             // there are no cards in the deck, take fatigue damage.
+            return false;
         }
        
     }
@@ -162,19 +159,14 @@ public class Player : MonoBehaviour, ICharacter
     {
         if (hand.CardsInHand.Count < PArea.handVisual.slots.Children.Length)
         {
-            // 1) logic: add card to hand
             CardLogic newCard = new CardLogic(GlobalSettings.Instance.CoinCard);
             newCard.owner = this;
-          //  hand.CardsInHand.Add(newCard);
-            // 2) send message to the visual Deck
-            new DrawACardCommand(newCard, this, fast: true, fromDeck: false).AddToQueue();
+            new GetACardCommand(newCard, this, fast: true, fromDeck: false).AddToQueue();
         }
-        // no removal from deck because the coin was not in the deck
     }
 
     public void PlayASpellFromHand(int SpellCardUniqueID, int TargetUniqueID)
     {
-        // TODO: !!!
         // if TargetUnique ID < 0 , for example = -1, there is no target.
         if (TargetUniqueID < 0)
             PlayASpellFromHand(CardLogic.CardsCreatedThisGame[SpellCardUniqueID], null);
@@ -202,7 +194,8 @@ public class Player : MonoBehaviour, ICharacter
         {
             Debug.LogWarning("No effect found on card " + playedCard.ca.name);
         }
-        new PlayASpellCardCommand(this, playedCard).AddToQueue();
+        new PlayASpellCardCommand(this, playedCard.ID).AddToQueue();
+        PlayerConnection.SendCommandOnServer((byte)ID, CommandType.PlayASpell, playedCard.ID.ToString());
         ManaLeft -= playedCard.CurrentManaCost;
     }
 
@@ -217,9 +210,9 @@ public class Player : MonoBehaviour, ICharacter
         Debug.Log(playedCard.CurrentManaCost);
         Debug.Log("Mana Left after played a creature: " + ManaLeft);
         CreatureLogic newCreature = new CreatureLogic(this, playedCard.ca);
-        new PlayACreatureCommand(playedCard, this, tablePos, newCreature).AddToQueue();
+        new PlayACreatureCommand(playedCard.ID, this, tablePos, newCreature).AddToQueue();
+        PlayerConnection.SendCommandOnServer((byte)ID, CommandType.PlayACreature, playedCard.ID.ToString(),tablePos.ToString(), playedCard.ca.name);
         ManaLeft -= playedCard.CurrentManaCost;
-        //HighlightPlayableCards();
     }
 
     public void Die()
@@ -235,6 +228,9 @@ public class Player : MonoBehaviour, ICharacter
     // METHODS TO SHOW GLOW HIGHLIGHTS
     public void HighlightPlayableCards(bool removeAllHighlights = false)
     {
+        if (this != GlobalSettings.Instance.LowPlayer)
+            return;
+
        // Debug.Log("HighlightPlayable for player :" + tag);
         foreach (CardLogic cl in hand.CardsInHand)
         {
@@ -282,7 +278,7 @@ public class Player : MonoBehaviour, ICharacter
     public void TransmitInfoAboutPlayerToVisual()
     {
         PArea.Portrait.gameObject.AddComponent<IDHolder>().UniqueID = PlayerID;
-        if (GetComponent<TurnMaker>() is AITurnMaker) // или is Player2TurnMaker
+        if (GetComponent<TurnMaker>() is AITurnMaker || GetComponent<TurnMaker>() is Player2TurnMaker) // или is Player2TurnMaker
         {
             // turn off turn making for this character
             PArea.AllowedToControlThisPlayer = false;
@@ -299,5 +295,6 @@ public class Player : MonoBehaviour, ICharacter
         ManaLeft -= 3;
         usedHeroPowerThisTurn = true;
         HeroPowerEffect.ActivateEffect();
+        PlayerConnection.SendCommandOnServer((byte)ID, CommandType.UseHeroPower);
     }
 }

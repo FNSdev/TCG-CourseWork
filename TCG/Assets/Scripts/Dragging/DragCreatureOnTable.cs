@@ -65,7 +65,7 @@ public class DragCreatureOnTable : DraggingActions {
 
     protected override bool DragSuccessful()
     {
-        bool TableNotFull = (playerOwner.table.CreaturesOnTable.Count < 5);
+        bool TableNotFull = (playerOwner.table.CreaturesOnTable.Count < GlobalSettings.MaxCreaturesOnTable);
 
         return TableVisual.CursorOverSomeTable && TableNotFull;
     }

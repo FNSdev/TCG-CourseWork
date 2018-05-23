@@ -3,13 +3,13 @@ using System.Collections;
 
 public class DealDamageCommand : Command {
 
-    private ICharacter Target;
     private int Amount;
     private int HealthAfter;
+    private int TargetID;
 
-    public DealDamageCommand(ICharacter target, int amount, int healthAfter)
+    public DealDamageCommand(int targetID, int amount, int healthAfter)
     {
-        Target = target;
+        TargetID = targetID;
         Amount = amount;
         HealthAfter = healthAfter;
     }
@@ -18,15 +18,16 @@ public class DealDamageCommand : Command {
     {
         Debug.Log("In deal damage command!");
 
-        GameObject target = IDHolder.GetGameObjectWithID(Target.ID);
-        if (Target.ID == GlobalSettings.Instance.LowPlayer.PlayerID || Target.ID == GlobalSettings.Instance.TopPlayer.PlayerID)
+        GameObject target = IDHolder.GetGameObjectWithID(TargetID);
+        ICharacter Target;
+        if (TargetID == GlobalSettings.Instance.LowPlayer.PlayerID || TargetID == GlobalSettings.Instance.TopPlayer.PlayerID)
         {
-            // target is a hero
+            Target = TargetID == 1 ? GlobalSettings.Instance.TopPlayer : GlobalSettings.Instance.LowPlayer;
             target.GetComponent<PlayerPortraitVisual>().TakeDamage(Amount, HealthAfter);
         }
         else
         {
-            // target is a creature
+            Target = CreatureLogic.CreaturesCreatedThisGame[TargetID];
             target.GetComponent<OneCreatureManager>().TakeDamage(Amount, HealthAfter);
         }
 

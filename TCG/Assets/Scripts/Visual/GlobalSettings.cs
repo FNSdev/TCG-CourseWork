@@ -18,6 +18,7 @@ public class GlobalSettings: MonoBehaviour
     public float CardPreviewTimeFast = 0.2f;
     public float CardTransitionTimeFast = 0.5f;
     public const int MaxCreaturesOnTable = 5;
+    public const int MaxCardsInHand = 10;
     [Header("Prefabs and Assets")]
     public GameObject NoTargetSpellCardPrefab;
     public GameObject TargetedSpellCardPrefab;

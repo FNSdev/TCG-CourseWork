@@ -8,7 +8,7 @@ public class DamageAllCreatures : SpellEffect {
         CreatureLogic[] CreaturesToDamage = TurnManager.Instance.WhoseTurn.otherPlayer.table.CreaturesOnTable.ToArray();
         foreach (CreatureLogic cl in CreaturesToDamage)
         {
-            new DealDamageCommand(cl, specialAmount, healthAfter: cl.Health - specialAmount).AddToQueue();
+            new DealDamageCommand(cl.ID, specialAmount, healthAfter: cl.Health - specialAmount).AddToQueue();
         }
     }
 }

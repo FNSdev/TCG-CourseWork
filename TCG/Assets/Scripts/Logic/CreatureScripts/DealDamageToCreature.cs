@@ -14,7 +14,8 @@ public class DealDamageToCreature : CreatureEffect {
     }
     public override void CauseEffect(ICharacter target)
     {
-        new DealDamageCommand(target, _damage, target.Health - _damage).AddToQueue();
+        PlayerConnection.SendCommandOnServer((byte)owner.ID, CommandType.DealDamage, target.ID.ToString(), _damage.ToString(), (target.Health - _damage).ToString());
+        new DealDamageCommand(target.ID, _damage, target.Health - _damage).AddToQueue();
     }
               
 }

@@ -3,22 +3,20 @@ using System.Collections;
 
 public class PlayASpellCardCommand: Command
 {
-    private CardLogic card;
-    private Player p;
-    //private ICharacter target;
+    private int cardID;
 
-    public PlayASpellCardCommand(Player p, CardLogic card)
+    public PlayASpellCardCommand(Player p, int cardID)
     {
-        this.card = card;
-        this.p = p;
+        this.cardID = cardID;
+        CommandSender = p;
     }
 
     public override void StartCommandExecution()
     {
         // move this card to the spot
-        p.hand.CardsInHand.Remove(card);
-        p.PArea.handVisual.PlayASpellFromHand(card.UniqueCardID);
-        p.HighlightPlayableCards();
+        CommandSender.hand.CardsInHand.Remove(CardLogic.CardsCreatedThisGame[cardID]);
+        CommandSender.PArea.handVisual.PlayASpellFromHand(cardID);
+        CommandSender.HighlightPlayableCards();
         // do all the visual stuff (for each spell separately????)
     }
 }

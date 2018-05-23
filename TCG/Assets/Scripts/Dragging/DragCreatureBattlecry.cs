@@ -26,6 +26,7 @@ public class DragCreatureBattlecry : DraggingActions
         Manager = GetComponentInParent<OneCreatureManager>();
         whereIsThisCard = GetComponentInParent<WhereIsTheCardOrCreature>();
         Targets = Manager.cardAsset.Targets;
+      //  tempVisualState = whereIsThisCard.VisualState; //??????
     }
 
     protected override bool DragSuccessful()
@@ -35,7 +36,8 @@ public class DragCreatureBattlecry : DraggingActions
 
     public override void OnStartDrag()
     {
-        tempVisualState = whereIsThisCard.VisualState;
+        //tempVisualState = whereIsThisCard.VisualState; //???????????
+
         whereIsThisCard.VisualState = VisualStates.Dragging;
         sr.enabled = true;
         lr.enabled = true;
@@ -83,7 +85,9 @@ public class DragCreatureBattlecry : DraggingActions
         lr.enabled = false;
         triangleSR.enabled = false;
         transform.localPosition = new Vector3(0f, 0f, -0.1f);
-        whereIsThisCard.VisualState = tempVisualState;
+        whereIsThisCard.VisualState = tag.Contains("Low") ? VisualStates.LowTable : VisualStates.TopTable;
+        //whereIsThisCard.VisualState = tempVisualState;
+        //Debug.Log(tempVisualState.ToString());
         InfoManager.Instance.HideTip();
         GlobalSettings.Instance.DraggingEnabled = true;
         HoverPreview.PreviewsAllowed = true;

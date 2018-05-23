@@ -11,14 +11,17 @@ public class Summon2SwamplersForOpponent : CreatureEffect {
         if (Swampler == null)
             Debug.Log("OOOPS");
         CreatureLogic[] wisps = { new CreatureLogic(owner.otherPlayer, Swampler), new CreatureLogic(owner.otherPlayer, Swampler) };
+        int AmountOfCreatures = owner.otherPlayer.table.CreaturesOnTable.Count;
 
-        foreach(CreatureLogic CL in wisps)
+        for(int i = 0; i < 2; i++)
         {
-            if (owner.otherPlayer.table.CreaturesOnTable.Count < GlobalSettings.MaxCreaturesOnTable)
+            if (AmountOfCreatures < GlobalSettings.MaxCreaturesOnTable)
             {
-                owner.otherPlayer.table.CreaturesOnTable.Insert(0, CL);
-                owner.otherPlayer.PArea.tableVisual.AddCreatureAtIndex(Swampler, CL.UniqueCreatureID, 0, false);
+                new SummonACreatureCommand(owner.otherPlayer, 0, wisps[i]).AddToQueue();
+                AmountOfCreatures++;
             }
+            else
+                break;
         }
     }
 }

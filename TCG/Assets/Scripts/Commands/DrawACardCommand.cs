@@ -3,27 +3,23 @@ using System.Collections;
 
 public class DrawACardCommand : Command
 {
-    // first argument
-    // "1" - fast
-    // "0" - normal
-    private Player p;
-    private CardLogic cl;
     private bool fast;
     private int ID;
     private bool fromDeck;
-    public DrawACardCommand(CardLogic cl, Player p, bool fast, bool fromDeck)
+    public DrawACardCommand(Player p, bool fast, bool fromDeck)
     {
-        this.cl = cl;
-        this.p = p;
+        CommandSender = p;
         this.fast = fast;
         this.fromDeck = fromDeck;
     }
     public override void StartCommandExecution()
     {
-        p.PArea.PDeck.CardsInDeck--;
-        p.PArea.handVisual.GivePlayerACard(cl.ca, cl.UniqueCardID, fast, fromDeck);
-        p.hand.CardsInHand.Add(cl);
-        /*if(fromDeck)
-            p.deck.cards.RemoveAt(0);*/
+        CardLogic newCard = new CardLogic(CommandSender.deck.cards[0]);
+        newCard.owner = CommandSender;
+        CommandSender.PArea.PDeck.CardsInDeck--;
+        CommandSender.PArea.handVisual.GivePlayerACard(newCard.ca, newCard.UniqueCardID, fast, fromDeck);
+        CommandSender.hand.CardsInHand.Add(newCard);
+        if(fromDeck)
+            CommandSender.deck.cards.RemoveAt(0);
     }
 }

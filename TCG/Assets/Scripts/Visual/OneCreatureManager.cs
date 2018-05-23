@@ -15,6 +15,7 @@ public class OneCreatureManager : MonoBehaviour
     [Header("Image references")]
     public Image CreatureGraphicImage;
     public Image CreatureGlowImage;
+    public Image TauntImage;
 
     private bool _CanAttackNow = false;
     public bool CanAttackNow
@@ -46,6 +47,8 @@ public class OneCreatureManager : MonoBehaviour
         {
             PreviewManager.cardAsset = cardAsset; 
         }
+
+        TauntImage.enabled = cardAsset.Taunt;
     }
 
     public void TakeDamage(int amount, int healthAfter)

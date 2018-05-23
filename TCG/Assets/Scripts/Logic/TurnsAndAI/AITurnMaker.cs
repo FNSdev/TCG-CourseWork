@@ -7,7 +7,8 @@ public class AITurnMaker: TurnMaker {
 
     public override void OnTurnStart()
     {
-        base.OnTurnStart();
+        //base.OnTurnStart();
+        p.OnTurnStart();
         // dispay a message that it is enemy`s turn
         new ShowMessageCommand("Enemy`s Turn!", 2.0f).AddToQueue();
         p.DrawACard();

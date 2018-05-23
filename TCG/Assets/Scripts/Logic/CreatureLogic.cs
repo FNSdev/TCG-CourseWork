@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 [System.Serializable]
 public class CreatureLogic: ICharacter 
@@ -141,30 +142,31 @@ public class CreatureLogic: ICharacter
     public void OnTurnStart()
     {
         AttacksLeftThisTurn = attacksForOneTurn;
-        if (TurnStart != null)
-            TurnStart.Invoke();
+        TriggerTurnStart();
     }
     public void OnTurnEnd()
     {
-        if (TurnEnd != null)
-            TurnEnd.Invoke();
+        TriggerTurnEnd();
     }
 
     public void Die()
     {   
         owner.table.CreaturesOnTable.Remove(this);
         new CreatureDieCommand(UniqueCreatureID, owner).AddToQueue();
-        if (CreatureHasDied != null)
-            CreatureHasDied.Invoke();
+        TiggerDeathrattle();
+        TriggerOtherCreatureHasDied();
     }
 
     public void GoFace()
     {
         AttacksLeftThisTurn--;
         int targetHealthAfter = owner.otherPlayer.Health - Attack;
-        new CreatureAttackCommand(owner.otherPlayer, this, 0, Attack, Health, targetHealthAfter).AddToQueue();
-        if (CreatureHasAttacked != null)
-            CreatureHasAttacked.Invoke();
+        PlayerConnection.SendCommandOnServer((byte)owner.ID, CommandType.AttackCreature, owner.otherPlayer.ID.ToString(), ID.ToString(),
+                             "0", Attack.ToString(), Health.ToString(),
+                             targetHealthAfter.ToString());
+        new CreatureAttackCommand(owner.otherPlayer.ID, ID, 0, Attack, Health, targetHealthAfter).AddToQueue();
+
+        TriggerCreatureHasAttacked();
     }
 
     public void AttackCreature (CreatureLogic target)
@@ -173,9 +175,12 @@ public class CreatureLogic: ICharacter
         // calculate the values so that the creature does not fire the DIE command before the Attack command is sent
         int targetHealthAfter = target.Health - Attack;
         int attackerHealthAfter = Health - target.Attack;
-        new CreatureAttackCommand(target, this, target.Attack, Attack, attackerHealthAfter, targetHealthAfter).AddToQueue();
-        if (CreatureHasAttacked != null)
-            CreatureHasAttacked.Invoke();
+        PlayerConnection.SendCommandOnServer((byte)owner.ID, CommandType.AttackCreature, target.ID.ToString(), ID.ToString(),
+                                     target.attack.ToString(), Attack.ToString(), attackerHealthAfter.ToString(),
+                                     targetHealthAfter.ToString());
+        new CreatureAttackCommand(target.ID, ID, target.Attack, Attack, attackerHealthAfter, targetHealthAfter).AddToQueue();
+
+        TriggerCreatureHasAttacked();
     }
 
     public void AttackCreatureWithID(int uniqueCreatureID)
@@ -186,6 +191,8 @@ public class CreatureLogic: ICharacter
 
     public void TriggerBattlecry(int id)
     {
+        if (!owner == GlobalSettings.Instance.LowPlayer) //think about this a bit more
+            return;
         if (id < 0)
             TriggerBattlecry();
         else if (id == owner.ID)
@@ -199,6 +206,58 @@ public class CreatureLogic: ICharacter
     public void TriggerBattlecry(ICharacter Target = null)
     {
         CreatureWasPlayed.Invoke(Target);
+    }
+
+    public void TiggerDeathrattle()
+    {
+        if (CreatureHasDied != null && owner == GlobalSettings.Instance.LowPlayer)
+            CreatureHasDied.Invoke();
+    }
+
+    public void TriggerOtherCreatureHasDied()
+    {
+        if(owner == GlobalSettings.Instance.LowPlayer)
+        {
+            var AllCreatures = owner.table.CreaturesOnTable.Union(owner.table.CreaturesOnTable);
+            var OtherCreatures = from creature in AllCreatures where creature != this select creature;
+            foreach (CreatureLogic c in OtherCreatures)
+            {
+                if (c.OtherCreatureHasDied != null)
+                    c.OtherCreatureHasDied.Invoke();
+            }
+        }
+    }
+
+    public void TriggerOtherCreatureWasPlayed()
+    {
+        if (owner == GlobalSettings.Instance.LowPlayer)
+        {
+            var AllCreatures = owner.table.CreaturesOnTable.Union(owner.table.CreaturesOnTable);
+            var OtherCreatures = from creature in AllCreatures where creature != this select creature;
+            foreach (CreatureLogic c in OtherCreatures)
+            {
+                if (c.OtherCreatureWasPlayed != null)
+                    c.OtherCreatureWasPlayed.Invoke();
+            }
+        }
+    }
+
+    public void TriggerTurnStart()
+    {
+        if (owner == GlobalSettings.Instance.LowPlayer && TurnStart != null)
+            TurnStart.Invoke();
+    }
+
+    public void TriggerTurnEnd()
+    {
+        if (owner == GlobalSettings.Instance.LowPlayer && TurnEnd != null)
+            TurnEnd.Invoke();
+    }
+
+    public void TriggerCreatureHasAttacked()
+    {
+        if (owner == GlobalSettings.Instance.LowPlayer && CreatureHasAttacked != null)
+            CreatureHasAttacked.Invoke();
     }
 
 }

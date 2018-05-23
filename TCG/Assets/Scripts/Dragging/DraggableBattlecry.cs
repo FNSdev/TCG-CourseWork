@@ -34,7 +34,7 @@ public class DraggableBattlecry : MonoBehaviour {
 
     public void ActivateDragging()
     {
-        if (battlecryDA != null) 
+        if (battlecryDA != null && TurnManager.Instance.WhoseTurn == GlobalSettings.Instance.LowPlayer) 
         {
             dragging = true;
             // when we are dragging something, all previews should be off

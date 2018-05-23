@@ -11,15 +11,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f53fef07e1cb2142848c2e9a4134dc4, type: 3}
   m_Name: Fire Storm
   m_EditorClassIdentifier: 
+  characterAsset: {fileID: 0}
   Description: 
-  CardImage: {fileID: 0}
-  ManaCost: 0
+  CardImage: {fileID: 21300000, guid: b664172360fdd454b8003a93a944f5cb, type: 3}
+  ManaCost: 3
+  Targets: 0
   MaxHealth: 0
   Attack: 0
-  AttacskForOneTurn: 1
+  AttacksForOneTurn: 1
   Charge: 0
-  CreatureScriptName: 
-  specialCreatureAmount: 0
+  Taunt: 0
+  TargetedBattlecry: 0
+  BattlecryEffectName: 
+  DeathrattleEffectName: 
+  TurnEndEffectName: 
+  TurnStartEffectName: 
+  OtherCreaturePlayedEffectName: 
+  OtherCreatureDiedEffectName: 
+  CreatureAttackedEffectName: 
+  CardWasDrawnEffectName: 
   SpellScriptName: 
   specialSpellAmount: 0
-  Targets: 0

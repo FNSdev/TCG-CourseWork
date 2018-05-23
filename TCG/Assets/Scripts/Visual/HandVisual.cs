@@ -6,7 +6,7 @@ using DG.Tweening;
 public class HandVisual : MonoBehaviour
 {
     public AreaPosition owner;
-    public bool TakeCardsOpenly = true;
+    private bool TakeCardsOpenly;
     public SameDistanceChildren slots;
 
     [Header("Transform References")]
@@ -16,6 +16,12 @@ public class HandVisual : MonoBehaviour
     public Transform PlayPreviewSpot;
 
     private List<GameObject> CardsInHand = new List<GameObject>();
+
+    void Awake()
+    {
+        if (owner == AreaPosition.Low)
+            TakeCardsOpenly = true;
+    }
 
     public void AddCard(GameObject card)
     {

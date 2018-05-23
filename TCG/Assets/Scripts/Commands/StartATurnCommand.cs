@@ -3,16 +3,14 @@ using System.Collections;
 
 public class StartATurnCommand : Command {
 
-    private Player p;
-
     public StartATurnCommand(Player p)
     {
-        this.p = p;
+        CommandSender = p;
     }
-
     public override void StartCommandExecution()
     {
-        TurnManager.Instance.WhoseTurn = p;
+       // PlayerConnection.SendCommandOnServer((byte)CommandSender.ID, 0);
+        TurnManager.Instance.WhoseTurn = CommandSender;
         // this command is completed instantly
         CommandExecutionComplete();
     }

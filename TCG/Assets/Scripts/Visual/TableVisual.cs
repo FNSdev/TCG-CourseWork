@@ -88,14 +88,13 @@ public class TableVisual : MonoBehaviour
         ShiftSlotsGameObjectAccordingToNumberOfCreatures();
         PlaceCreaturesOnNewSlots();
 
-        //TEST
-
         DraggableBattlecry DB = creature.gameObject.GetComponentInChildren<DraggableBattlecry>();
         CreatureLogic CL = CreatureLogic.CreaturesCreatedThisGame[UniqueID];
+        CL.TriggerOtherCreatureWasPlayed();
 
-        if (CL.hasBattlecry && CL.TargetedBattlecry)
+        if (CL.hasBattlecry && CL.TargetedBattlecry && CL.Health > 0)
             DB.ActivateDragging();
-        else if (CL.hasBattlecry)
+        else if (CL.hasBattlecry && CL.Health > 0)
             CL.TriggerBattlecry();
 
         // заканчиваем выполнение комманды

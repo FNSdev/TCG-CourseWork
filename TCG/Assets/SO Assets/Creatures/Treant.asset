@@ -11,13 +11,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f53fef07e1cb2142848c2e9a4134dc4, type: 3}
   m_Name: Treant
   m_EditorClassIdentifier: 
-  characterAsset: {fileID: 11400000, guid: 0c7a1c3e73bb63848b2cf5bc83492813, type: 2}
-  Description: 
+  characterAsset: {fileID: 0}
+  Description: 'Taunt. Battlecry: summon 2 Swamplers for your opponent'
   CardImage: {fileID: 21300000, guid: 5890b6c56a9fd284a859dd82fab9f9f1, type: 3}
-  ManaCost: 0
+  ManaCost: 4
   Targets: 0
-  MaxHealth: 1
-  Attack: 1
+  MaxHealth: 7
+  Attack: 3
   AttacksForOneTurn: 1
   Charge: 0
   Taunt: 1

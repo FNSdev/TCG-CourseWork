@@ -3,17 +3,17 @@ using System.Collections;
 
 public class CreatureAttackCommand : Command 
 {
-    private ICharacter Target;
-    private ICharacter Attacker;
     private int AttackerHealthAfter;
     private int TargetHealthAfter;
     private int DamageTakenByAttacker;
     private int DamageTakenByTarget;
+    private int AttackerID;
+    private int TargetID;
 
-    public CreatureAttackCommand(ICharacter target, ICharacter attacker, int damageTakenByAttacker, int damageTakenByTarget, int attackerHealthAfter, int targetHealthAfter)
+    public CreatureAttackCommand(int targetID, int attackerID, int damageTakenByAttacker, int damageTakenByTarget, int attackerHealthAfter, int targetHealthAfter)
     {
-        Target = target;
-        Attacker = attacker;
+        TargetID = targetID;
+        AttackerID = attackerID;
         AttackerHealthAfter = attackerHealthAfter;
         TargetHealthAfter = targetHealthAfter;
         DamageTakenByTarget = damageTakenByTarget;
@@ -22,8 +22,18 @@ public class CreatureAttackCommand : Command
 
     public override void StartCommandExecution()
     {
-        GameObject AttackerObject = IDHolder.GetGameObjectWithID(Attacker.ID);
-        AttackerObject.GetComponent<CreatureAttackVisual>().AttackTarget(Target.ID, DamageTakenByTarget, DamageTakenByAttacker, AttackerHealthAfter, TargetHealthAfter);
+        GameObject AttackerObject = IDHolder.GetGameObjectWithID(AttackerID);
+        AttackerObject.GetComponent<CreatureAttackVisual>().AttackTarget(TargetID, DamageTakenByTarget, DamageTakenByAttacker, AttackerHealthAfter, TargetHealthAfter);
+
+        ICharacter Target, Attacker;
+        Attacker = CreatureLogic.CreaturesCreatedThisGame[AttackerID];
+
+        if (TargetID == 1)
+            Target = GlobalSettings.Instance.TopPlayer;
+        else if (TargetID == 2)
+            Target = GlobalSettings.Instance.LowPlayer;
+        else
+            Target = CreatureLogic.CreaturesCreatedThisGame[TargetID];
 
         Target.Health = TargetHealthAfter;
         Attacker.Health = AttackerHealthAfter;
